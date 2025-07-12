@@ -1,46 +1,41 @@
 import streamlit as st
 import pandas as pd
 
-# Set page configuration
 st.set_page_config(page_title="Acura Lease & APR Offer Comparison", layout="wide")
 
-# Title
-st.title("Acura Lease & APR Offer Comparison Dashboard")
+st.title("🚗 Acura Lease & APR Offer Comparison Dashboard")
 
-# Sidebar for file uploads
-st.sidebar.header("Upload Mapping Files")
-lease_file = st.sidebar.file_uploader("Upload Lease Mapping File", type=["csv", "xlsx"])
-apr_file = st.sidebar.file_uploader("Upload APR Mapping File", type=["csv", "xlsx"])
+# Upload lease and APR files
+lease_file = st.file_uploader("Upload Lease Offer File", type=["csv", "xlsx"])
+apr_file = st.file_uploader("Upload APR Offer File", type=["csv", "xlsx"])
+mapping_file = st.file_uploader("Upload Mapping File (optional)", type=["csv", "xlsx"])
 
-# Function to read uploaded file
-def load_file(uploaded_file):
-    if uploaded_file is not None:
-        if uploaded_file.name.endswith('.csv'):
-            return pd.read_csv(uploaded_file)
-        elif uploaded_file.name.endswith('.xlsx'):
-            return pd.read_excel(uploaded_file, engine='openpyxl')
+def load_file(file):
+    if file is not None:
+        if file.name.endswith(".csv"):
+            return pd.read_csv(file)
+        else:
+            return pd.read_excel(file)
     return None
 
-# Load data
-lease_data = load_file(lease_file)
-apr_data = load_file(apr_file)
+lease_df = load_file(lease_file)
+apr_df = load_file(apr_file)
+map_df = load_file(mapping_file)
 
-# Tabs for Lease and APR views
-tab1, tab2 = st.tabs(["Lease Offers", "APR Offers"])
+# Display uploaded data
+if lease_df is not None:
+    st.subheader("Lease Offers")
+    st.dataframe(lease_df)
 
-with tab1:
-    st.subheader("Lease Offer Mapping")
-    if lease_data is not None:
-        st.dataframe(lease_data)
-        st.info("Matched and unmatched lease offers will be displayed here.")
-    else:
-        st.warning("Please upload a Lease Mapping File.")
+if apr_df is not None:
+    st.subheader("APR Offers")
+    st.dataframe(apr_df)
 
-with tab2:
-    st.subheader("APR Offer Mapping")
-    if apr_data is not None:
-        st.dataframe(apr_data)
-        st.info("Matched and unmatched APR offers will be displayed here.")
-    else:
-        st.warning("Please upload an APR Mapping File.")
+if map_df is not None:
+    st.subheader("Mapping File")
+    st.dataframe(map_df)
+
+# Placeholder for future comparison logic
+if lease_df is not None and apr_df is not None:
+    st.success("Both Lease and APR files uploaded. Ready for comparison logic!")
 
